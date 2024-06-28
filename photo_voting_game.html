@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Voting Game</title>
+    <style>
+        .photo {
+            width: 300px;
+            height: 300px;
+            margin: 10px;
+        }
+        .container {
+            display: flex;
+            justify-content: space-around;
+        }
+    </style>
+    <!-- Add Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+</head>
+<body>
+    <h1>Photo Voting Game</h1>
+    <form id="user-form">
+        <label for="username">Enter your name:</label>
+        <input type="text" id="username" name="username" required>
+        <button type="submit">Start Game</button>
+    </form>
+    <div id="game-container" class="container" style="display:none;">
+        <img id="photo1" class="photo" src="" alt="Photo 1">
+        <img id="photo2" class="photo" src="" alt="Photo 2">
+    </div>
+    <script>
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        const photos = [
+            'URL_OF_PHOTO_1',
+            'URL_OF_PHOTO_2',
+            // Add URLs for all 80 photos
+        ];
+        let shuffledPhotos = [];
+        let currentIndex = 0;
+        let userName = '';
+
+        document.getElementById('user-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            userName = document.getElementById('username').value;
+            shuffledPhotos = photos.sort(() => 0.5 - Math.random());
+            currentIndex = 0;
+            document.getElementById('user-form').style.display = 'none';
+            document.getElementById('game-container').style.display = 'flex';
+            showPhotos();
+        });
+
+        function showPhotos() {
+            if (currentIndex >= shuffledPhotos.length - 1) {
+                alert('Game Over');
+                return;
+            }
+            document.getElementById('photo1').src = shuffledPhotos[currentIndex];
+            document.getElementById('photo2').src = shuffledPhotos[currentIndex + 1];
+        }
+
+        document.getElementById('photo1').addEventListener('click', function() {
+            votePhoto(shuffledPhotos[currentIndex]);
+            currentIndex++;
+            showPhotos();
+        });
+
+        document.getElementById('photo2').addEventListener('click', function() {
+            votePhoto(shuffledPhotos[currentIndex + 1]);
+            currentIndex++;
+            showPhotos();
+        });
+
+        function votePhoto(photo) {
+            db.collection
